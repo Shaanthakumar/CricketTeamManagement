@@ -1,0 +1,12 @@
+export interface Player {
+  id: string;              // MongoDB ObjectId
+  playerId: number;        // Business ID
+  name: string;
+  dob: string;
+  batRate: number;
+  bowlRate: number;
+  wkRate: number;
+  fieldRate: number;
+  matchesPlayed: number;
+}
+    

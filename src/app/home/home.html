@@ -1,0 +1,25 @@
+<div class="header-container">
+  <h1>Welcome to Cricket Team Manager</h1>
+  
+  <div class="nav-buttons">
+    <button (click)="showPlayers()" [class.active]="currentView === 'players'">
+      PLAYERS
+    </button>
+    <button (click)="showTeams()" [class.active]="currentView === 'teams'">
+      TEAMS
+    </button>
+  </div>
+</div>
+
+<div class="content-container">
+  <div class="content-wrapper">
+    <div *ngIf="!currentView" class="default-view">
+      <app-player-list></app-player-list>
+    </div>
+    <app-player-list *ngIf="currentView === 'players'"></app-player-list>
+    <app-teams *ngIf="currentView === 'teams'"></app-teams>
+    
+    <!-- Default view when no selection is made -->
+    
+  </div>
+</div>
