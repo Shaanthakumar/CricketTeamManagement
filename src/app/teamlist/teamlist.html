@@ -1,0 +1,159 @@
+<div class="container mt-4">
+  <div class="card team-management-card">
+     <!-- Content when loaded -->
+      <div *ngIf="!isLoading && !loadError">
+        <!-- Header with Controls (matching player list style) -->
+        <div class="table-header table-header-inline">
+  <h2>Teams</h2>
+  <div class="header-actions">
+    <input 
+      type="number" 
+      placeholder="Number of teams..." 
+      [(ngModel)]="numberOfTeams" 
+      min="1"
+      class="form-control search-input"
+    >
+    <button class="add-btn" (click)="generateTeams()" style="background-color: #28a745;">
+      <i class="bi bi-shuffle"></i> 
+      <span> Generate Teams</span>
+    </button>
+    <button class="add-btn refresh" (click)="deleteAllTeams()" [disabled]="teams.length === 0" style="background-color: #dc3545;">
+      <i class="bi bi-x-circle-fill"></i> Clear All
+    </button>
+  </div>
+</div>
+
+
+          </div>
+        </div>
+    <div class="card-body">
+      <!-- Message display -->
+      <div *ngIf="message.text" class="alert mb-4" [ngClass]="{
+        'alert-success': message.type === 'success',
+        'alert-danger': message.type === 'error',
+        'alert-info': message.type === 'info'
+      }">
+        <div class="d-flex align-items-center">
+          <i class="bi me-2" [class.bi-check-circle-fill]="message.type === 'success'" 
+             [class.bi-exclamation-triangle-fill]="message.type === 'error'"
+             [class.bi-info-circle-fill]="message.type === 'info'"></i>
+          <span>{{ message.text }}</span>
+        </div>
+        <button *ngIf="message.dismissible" class="btn-close" (click)="clearMessage()"></button>
+      </div>
+
+      <!-- Loading state -->
+      <div *ngIf="isLoading" class="loading-container">
+        <i class="bi bi-arrow-repeat"></i>
+        <p>Loading teams...</p>
+      </div>
+
+      <!-- Error state -->
+      <div *ngIf="loadError" class="error-container">
+        <i class="bi bi-exclamation-triangle"></i>
+        <p>Failed to load teams. <button class="retry-btn" (click)="loadTeams()">Retry</button></p>
+      </div>
+
+     
+
+        <!-- Team List or No Teams Message -->
+        <div *ngIf="teams.length > 0; else noTeams">
+          <div class="team-list">
+            <div class="team-card" *ngFor="let team of teams; let i = index">
+              <div class="team-header" (click)="togglePlayers(i)">
+                <div class="d-flex align-items-center">
+                  <div class="team-icon me-3">
+                    <i class="bi bi-shield-fill-check text-primary"></i>
+                  </div>
+                  <div>
+                    <h3 class="team-name mb-0">{{ team.teamName }}</h3>
+                    <div class="team-meta">
+                      <span class="badge bg-light text-dark me-2">
+                        <i class="bi bi-people-fill text-primary me-1"></i>{{ team.playerIds.length }} players
+                      </span>
+                      <span class="badge bg-warning text-dark">
+                        <i class="bi bi-star-fill me-1"></i>Total: {{ getTotalRating(team) | number:'1.1-1' }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <i class="bi fs-4 text-primary" [class.bi-chevron-down]="!showPlayers[i]" [class.bi-chevron-up]="showPlayers[i]"></i>
+<button class="btn-delete" (click)="deleteTeam(team.teamName)" title="Delete Team">
+  <i class="bi bi-trash3"></i> Delete
+</button>
+              </div>
+              
+              <div class="team-details" *ngIf="showPlayers[i]">
+                <div class="player-section">
+                  <h4 class="section-title">
+                    <i class="bi bi-people-fill me-2"></i>Players
+                  </h4>
+                  <div *ngIf="team.playerIds.length > 0; else noPlayers">
+                    <div class="player-grid">
+                      <div class="player-tag" *ngFor="let playerId of team.playerIds">
+                        #{{ playerId }}
+                      </div>
+                    </div>
+                  </div>
+                  <ng-template #noPlayers>
+                    <div class="empty-state-container">
+                      <div class="empty-state">
+                        <i class="bi bi-person-x-fill"></i>
+                        <p class="mb-0">No players assigned to this team</p>
+                      </div>
+                    </div>
+                  </ng-template>
+                </div>
+                
+                <div class="skills-section mt-4">
+                  <h4 class="section-title">
+                    <i class="bi bi-graph-up me-2"></i>Skills Breakdown
+                  </h4>
+                  <div class="skills-grid">
+                    <div class="skill-item bg-batting">
+                      <div class="skill-label">Batting</div>
+                      <div class="skill-value">{{ formatRating(team.totalBatRating) }}</div>
+                      <div class="skill-bar">
+                        <div class="skill-progress" [style.width.%]="team.totalBatRating * 10"></div>
+                      </div>
+                    </div>
+                    <div class="skill-item bg-bowling">
+                      <div class="skill-label">Bowling</div>
+                      <div class="skill-value">{{ formatRating(team.totalBowlRating) }}</div>
+                      <div class="skill-bar">
+                        <div class="skill-progress" [style.width.%]="team.totalBowlRating * 10"></div>
+                      </div>
+                    </div>
+                    <div class="skill-item bg-keeping">
+                      <div class="skill-label">Keeping</div>
+                      <div class="skill-value">{{ formatRating(team.totalWkRating) }}</div>
+                      <div class="skill-bar">
+                        <div class="skill-progress" [style.width.%]="team.totalWkRating * 10"></div>
+                      </div>
+                    </div>
+                    <div class="skill-item bg-fielding">
+                      <div class="skill-label">Fielding</div>
+                      <div class="skill-value">{{ formatRating(team.totalFieldRating) }}</div>
+                      <div class="skill-bar">
+                        <div class="skill-progress" [style.width.%]="team.totalFieldRating * 10"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <ng-template #noTeams>
+          <div class="empty-state-container">
+            <div class="empty-state text-center">
+              <i class="bi bi-people-fill"></i>
+              <h3 class="fw-bold">No Teams Available</h3>
+              <p class="mb-4">Generate new teams to get started with your cricket tournament</p>
+      
+            </div>
+          </div>
+        </ng-template>
+      </div>
+    </div>
